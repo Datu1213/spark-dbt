@@ -1,0 +1,11 @@
+my_dbt_project:
+  target: dev
+  outputs:
+    dev:
+      type: spark
+      method: thrift
+      host: spark-thrift  # Service name of thrift server in docker-compose.yaml
+      port: 10000 # Thrift server port
+      schema: default
+      user: hive
+      connect_retries: 5
