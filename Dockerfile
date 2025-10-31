@@ -42,7 +42,7 @@ ENV DBT_PROFILES_DIR=/root/.dbt
 # Copy only the necessary files from the builder stage
 COPY --from=builder /usr/local/lib/python${PYTHON_VERSION}/site-packages /usr/local/lib/python${PYTHON_VERSION}/site-packages
 COPY --from=builder /usr/local/bin/dbt /usr/local/bin/dbt
-
+ADD my_dbt_project .
 
 USER dbt
 
