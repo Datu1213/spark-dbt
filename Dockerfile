@@ -46,7 +46,6 @@ WORKDIR /app
 ARG PYTHON_VERSION
 
 ENV DBT_PROFILES_DIR=/root/.dbt
-ENV DBT_TARGET=spark
 ENV SPARK_MASTER=spark://spark-thrift:7077
 ENV THRIFT_HOST=spark-thrift
 ENV THRIFT_PORT=10000 
@@ -60,5 +59,5 @@ ADD my_dbt_project .
 USER dbt
 
 # dbt deps && dbt docs generate && exec dbt docs serve --port 8580 --host 0.0.0.0
-CMD ["sh", "-c", "dbt deps && dbt docs generate && exec dbt docs serve --port ${DBT_DOCS_PORT} --host"]
+CMD ["sh", "-c", "dbt deps && dbt docs generate && exec dbt docs serve --port ${DBT_DOCS_PORT} --host 0.0.0.0"]
 EXPOSE 8580
