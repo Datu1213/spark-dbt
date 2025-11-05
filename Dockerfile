@@ -26,7 +26,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       pyhive>=0.7.0 \
       thrift>=0.16.0 \
       thrift-sasl>=0.4.3 \
-      sasl \
+      pure-sasl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /root/.cache/pip
 
