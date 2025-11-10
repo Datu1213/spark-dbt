@@ -22,9 +22,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 FROM python:3.11-slim
 
-COPY --from=builder /dbt/venv /dbt/venv
-ADD my_dbt_project .
-
 # Create a non-root user to run dbt
 RUN useradd -m -u 1001 dbt \
     && mkdir -p /app \
@@ -32,11 +29,16 @@ RUN useradd -m -u 1001 dbt \
 
 WORKDIR /app
 
+COPY --from=builder /dbt/venv /dbt/venv
+
+ADD my_dbt_project .
+
+RUN chown -R dbt:dbt /app
+
 # Set DBT_PROFILES_DIR & DBT_PACKAGES_DIR
 # with a non-root accessible path
 ENV PATH="/dbt/venv/bin:$PATH" \
-    DBT_PROFILES_DIR=/app/.dbt \
-    DBT_PACKAGES_DIR=/app/.dbt_packages \
+    DBT_PROFILES_DIR=/app/my_dbt_project/conf \
     SPARK_MASTER=spark://spark-thrift:7077 \
     THRIFT_HOST=spark-thrift \
     THRIFT_PORT=10000 \
