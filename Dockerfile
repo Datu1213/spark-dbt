@@ -38,7 +38,7 @@ RUN chown -R dbt:dbt /app
 # Set DBT_PROFILES_DIR & DBT_PACKAGES_DIR
 # with a non-root accessible path
 ENV PATH="/dbt/venv/bin:$PATH" \
-    DBT_PROFILES_DIR=/app/my_dbt_project/conf \
+    DBT_PROFILES_DIR=/app/conf \
     SPARK_MASTER=spark://spark-thrift:7077 \
     THRIFT_HOST=spark-thrift \
     THRIFT_PORT=10000 \
