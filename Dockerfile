@@ -14,8 +14,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       build-essential \
       libssl-dev \
     && pip install --upgrade pip setuptools wheel uv && \
-    uv venv dbt && \
-    . dbt/bin/activate && \
+    uv venv /dbt/venv && \
+    . /dbt/venv/bin/activate && \
     uv pip install --no-cache-dir -vvv -r /tmp/requirements.txt \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /root/.cache/pip
@@ -35,7 +35,7 @@ WORKDIR /app
 
 ARG PYTHON_VERSION
 
-ENV PATH="dbt/bin:$PATH" \
+ENV PATH="/dbt/venv/bin:$PATH" \
     DBT_PROFILES_DIR=/root/.dbt \
     SPARK_MASTER=spark://spark-thrift:7077 \
     THRIFT_HOST=spark-thrift \
@@ -43,7 +43,7 @@ ENV PATH="dbt/bin:$PATH" \
     DBT_DOCS_PORT=8580 
 
 # Copy only the necessary files from the builder stage
-COPY --from=builder dbt dbt
+COPY --from=builder /dbt/venv /dbt/venv
 ADD my_dbt_project .
 
 USER dbt
