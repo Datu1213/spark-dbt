@@ -1,7 +1,5 @@
-ARG PYTHON_VERSION=3.11
-
 # ---------- Stage 1: Build dependencies ----------
-FROM python:${PYTHON_VERSION}-slim AS builder
+FROM python:3.11-slim AS builder
 
 COPY requirements.txt /tmp/requirements.txt
 
@@ -22,9 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # ---------- Stage 2: Runtime image ----------
 
-ARG PYTHON_VERSION   
-
-FROM python:${PYTHON_VERSION}-slim
+FROM python:3.11-slim
 
 # Create a non-root user to run dbt
 RUN useradd -m -u 1001 dbt \
@@ -33,14 +29,15 @@ RUN useradd -m -u 1001 dbt \
 
 WORKDIR /app
 
-ARG PYTHON_VERSION
-
+# Set DBT_PROFILES_DIR & DBT_PACKAGES_DIR
+# with a non-root accessible path
 ENV PATH="/dbt/venv/bin:$PATH" \
-    DBT_PROFILES_DIR=/root/.dbt \
+    DBT_PROFILES_DIR=/app/.dbt \
+    DBT_PACKAGES_DIR=/app/.dbt_packages \
     SPARK_MASTER=spark://spark-thrift:7077 \
     THRIFT_HOST=spark-thrift \
     THRIFT_PORT=10000 \
-    DBT_DOCS_PORT=8580 
+    DBT_DOCS_PORT=8580
 
 # Copy only the necessary files from the builder stage
 COPY --from=builder /dbt/venv /dbt/venv
