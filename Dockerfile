@@ -24,21 +24,19 @@ FROM python:3.11-slim
 
 # Create a non-root user to run dbt
 RUN useradd -m -u 1001 dbt \
-    && mkdir -p /app \
-    && chown -R dbt:dbt /app
-
-WORKDIR /app
+    && mkdir -p /home/dbt/app \
+    && chown -R dbt:dbt /home/dbt/app
 
 COPY --from=builder /dbt/venv /dbt/venv
 
+WORKDIR /home/dbt/app
 ADD my_dbt_project .
-
-RUN chown -R dbt:dbt /app
+RUN chown -R dbt:dbt /home/dbt/app
 
 # Set DBT_PROFILES_DIR & DBT_PACKAGES_DIR
 # with a non-root accessible path
 ENV PATH="/dbt/venv/bin:$PATH" \
-    DBT_PROFILES_DIR=/app/conf \
+    DBT_PROFILES_DIR=/home/dbt/app/conf \
     SPARK_MASTER=spark://spark-thrift:7077 \
     THRIFT_HOST=spark-thrift \
     THRIFT_PORT=10000 \
