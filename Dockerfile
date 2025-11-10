@@ -22,6 +22,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 FROM python:3.11-slim
 
+COPY --from=builder /dbt/venv /dbt/venv
+ADD my_dbt_project .
+
 # Create a non-root user to run dbt
 RUN useradd -m -u 1001 dbt \
     && mkdir -p /app \
@@ -40,8 +43,6 @@ ENV PATH="/dbt/venv/bin:$PATH" \
     DBT_DOCS_PORT=8580
 
 # Copy only the necessary files from the builder stage
-COPY --from=builder /dbt/venv /dbt/venv
-ADD my_dbt_project .
 
 USER dbt
 
