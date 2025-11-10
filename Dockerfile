@@ -44,7 +44,6 @@ ENV PATH="dbt/bin:$PATH" \
 
 # Copy only the necessary files from the builder stage
 COPY --from=builder dbt dbt
-COPY --from=builder /usr/local/bin/dbt /usr/local/bin/dbt
 ADD my_dbt_project .
 
 USER dbt
