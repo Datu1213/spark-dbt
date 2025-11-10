@@ -3,16 +3,7 @@ ARG PYTHON_VERSION=3.11
 # ---------- Stage 1: Build dependencies ----------
 FROM python:${PYTHON_VERSION}-slim AS builder
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    python3-dev \
-    libssl-dev \
-    libthrift-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN pip install --upgrade pip
-# Prevent pip 25+ because of breaking changes
-RUN pip install --upgrade "pip<25" setuptools wheel
+COPY requirements.txt /tmp/requirements.txt
 
 # Install dbt-spark & PyHive
 # Step by step to avoid dependency conflicts in installation process
@@ -20,13 +11,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       gcc \
       libsasl2-dev \
       python3-dev \
-    && pip install --no-cache-dir \
-      "dbt-core==1.8.7" \
-      "dbt-spark[PyHive]==1.8.0" \
-      pyhive>=0.7.0 \
-      thrift>=0.16.0 \
-      thrift-sasl>=0.4.3 \
-      pure-sasl \
+      build-essential \
+      libssl-dev \
+    && pip install --upgrade pip setuptools wheel uv && \
+    uv venv dbt && \
+    . dbt/bin/activate && \
+    uv pip install --no-cache-dir -vvv -r /tmp/requirements.txt \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /root/.cache/pip
 
@@ -45,14 +35,15 @@ WORKDIR /app
 
 ARG PYTHON_VERSION
 
-ENV DBT_PROFILES_DIR=/root/.dbt
-ENV SPARK_MASTER=spark://spark-thrift:7077
-ENV THRIFT_HOST=spark-thrift
-ENV THRIFT_PORT=10000 
-ENV DBT_DOCS_PORT=8580
+ENV PATH="dbt/bin:$PATH" \
+    DBT_PROFILES_DIR=/root/.dbt \
+    SPARK_MASTER=spark://spark-thrift:7077 \
+    THRIFT_HOST=spark-thrift \
+    THRIFT_PORT=10000 \
+    DBT_DOCS_PORT=8580 
 
 # Copy only the necessary files from the builder stage
-COPY --from=builder /usr/local/lib/python${PYTHON_VERSION}/site-packages /usr/local/lib/python${PYTHON_VERSION}/site-packages
+COPY --from=builder dbt dbt
 COPY --from=builder /usr/local/bin/dbt /usr/local/bin/dbt
 ADD my_dbt_project .
 
