@@ -9,3 +9,7 @@ my_dbt_project:
       schema: default
       user: hive
       connect_retries: 5
+      spark.hadoop.fs.s3a.endpoint: http://minio:9000
+      spark.hadoop.fs.s3a.access.key: minioadmin
+      spark.hadoop.fs.s3a.secret.key: minioadmin
+      spark.hadoop.fs.s3a.path.style.access: true # Enable path style access for MinIO
